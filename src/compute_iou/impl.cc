@@ -17,5 +17,45 @@ float compute_iou(const cv::Rect& a, const cv::Rect& b) {
      * 运行测试点，显示通过就行，不通过会告诉你哪一组矩形错了。
     */
     // IMPLEMENT YOUR CODE HERE
-    return 0.f;
+    /*
+
+    ·------> x
+    |
+    |
+    |
+    |
+    V
+    y
+              __________
+             |          |
+             |    a     |
+             |__________|
+                  _________
+                 |         |
+                 |    b    |
+                 |_________|
+    */
+
+
+    //交叉区域的左上角和右下角
+    int x1 = std::max(a.x, b.x);
+    int y1 = std::max(a.y, b.y);
+    int x2 = std::min(a.x + a.width, b.x + b.width);
+    int y2 = std::min(a.y + a.height, b.y + b.height);
+    
+    //交叉区域的宽度和高度
+    int w = std::max(0, x2 - x1);//无边界时为负
+    int h = std::max(0, y2 - y1);
+    float A_and_B = w * h;//AB
+    
+    float area_a = a.width * a.height;
+    float area_b = b.width * b.height;
+    float A_or_B = area_a + area_b - A_and_B;//A并B=A+B-AB
+    
+    // 6. 避免除零错误
+    if (A_and_B <= 0) {
+        return 0.f;//float的0
+    }
+
+    return A_and_B / A_or_B;
 }
