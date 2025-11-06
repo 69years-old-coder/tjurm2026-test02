@@ -43,9 +43,53 @@ std::vector<cv::Mat> erode(const cv::Mat& src_erode, const cv::Mat& src_dilate) 
      *     2. dilate 之后的图像中，图中的小脚被消除了(类似答案中的样子)
      *     以上两个检查点需要自己检查，满足条件 则输入 p 通过, 否则输入 f 表示不通过
      */
-    cv::Mat dst_erode, dst_dilate;
-
+    
+    
     // TODO: 在这里实现你的代码
+    
+    // 定义输出变量：存储最终处理结果
+    cv::Mat dst_erode;  // 存储腐蚀操作的结果图像
+    cv::Mat dst_dilate; // 存储膨胀操作的结果图像
 
+    cv::Mat gray_erode;  // 存储src_erode转换后的灰度图像
+    cv::Mat gray_dilate; // 存储src_dilate转换后的灰度图像
+    
+    // 彩转灰
+    // 源图像，目标图像，转换类型
+    cv::cvtColor(src_erode, gray_erode, cv::COLOR_BGR2GRAY);
+    cv::cvtColor(src_dilate, gray_dilate, cv::COLOR_BGR2GRAY);
+
+    cv::Mat binary_erode;
+    cv::Mat binary_dilate;
+    
+    // 灰图二值化
+    // 源图像，目标图像，阈值，最大值255，二值化类型
+    // 自适应阈值
+    cv::threshold(gray_erode, binary_erode, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
+    cv::threshold(gray_dilate, binary_dilate, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
+
+    
+    // 创建腐蚀操作使用的核（结构元素）
+    // 核形状（矩形），核大小（像素） 1*1 3*3效果不行
+    // 消除头发中的白点
+    cv::Mat kernel_erode = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+    
+    // 创建膨胀操作使用的核（结构元素）
+    // 参数说明：核形状（矩形），核大小（像素）1*1 5*5效果不行
+    // 消除图中的小脚
+    cv::Mat kernel_dilate = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(7, 7));
+
+    
+    // 对二值图像执行腐蚀操作
+    // 作用：扩大黑色区域，消除小的白色噪点（如头发中的白点）
+    // 参数说明：输入图像，输出图像，腐蚀核
+    cv::erode(binary_erode, dst_erode, kernel_erode);
+    
+    // 对二值图像执行膨胀操作
+    // 作用：扩大白色区域，消除小的黑色细节（如图中的小脚）
+    // 参数说明：输入图像，输出图像，膨胀核
+    cv::dilate(binary_dilate, dst_dilate, kernel_dilate);
+    
+    // 腐蚀 和 膨胀，两个向量
     return {dst_erode, dst_dilate};
 }
