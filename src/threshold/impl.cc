@@ -28,6 +28,8 @@ std::vector<cv::Mat> threshold(const cv::Mat& src, int threshold_value) {
     cv::Mat gray, dst;
 
     // TODO: 实现代码
+    cv::cvtColor(src, gray, cv::COLOR_BGR2GRAY); //彩-->灰度
+    cv::threshold(gray, dst, threshold_value, 255, cv::THRESH_BINARY); //灰度-->二值化
 
     return {gray, dst};
 }
